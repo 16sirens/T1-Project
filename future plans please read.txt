@@ -1,0 +1,1 @@
+I plan on making an object of class that will have all the features of the clock, including parameter passing, accessors and mutators among other things. I am currently working on making sure everything works and then refining it.

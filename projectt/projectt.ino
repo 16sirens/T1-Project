@@ -1,0 +1,131 @@
+#include <Streaming.h>
+#include <Wire.h>
+// -- 7SEG LED&KEY --
+#include <TM1638plus.h> 
+// -- OLED --
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+// -- Servo --
+#include <Servo.h>
+// -- RTC --
+#include <DS3231.h>
+
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+
+
+
+// OLED i2c
+#define OLED_RESET -1
+#define OLED_SCREEN_I2C_ADDRESS 0x3C
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+#define STROBE_TM D5 // strobe = GPIO connected to strobe line of module
+#define CLOCK_TM D6 // clock = GPIO connected to clock line of module
+#define DIO_TM D7 // data = GPIO connected to data line of module
+bool high_freq = false; //default false, If using a high freq CPU > ~100 MHZ set to true.
+
+// Constructor object (GPIO STB , GPIO CLOCK , GPIO DIO, use high freq MCU)
+TM1638plus tm(STROBE_TM, CLOCK_TM , DIO_TM, high_freq);
+
+// TM1638 BUTTON
+byte buttons;
+
+// DS3231 uses I2C bus - device ID 0x68
+DS3231 rtc;
+bool century = false;
+bool h12Flag;
+bool pmFlag;
+void setDateAndTime(){
+rtc.setClockMode(false); // false = 24hr clock mode
+rtc.setYear(25);
+rtc.setMonth(11);
+rtc.setDate(24);
+rtc.setHour(18);
+rtc.setMinute(40);
+rtc.setSecond(0);
+}
+
+// SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP 
+
+void setup()
+{
+
+// OLED
+Serial.begin(115200);
+Serial << endl << "Hello World" << endl;
+// -- OLED --------------
+display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
+display.display();
+delay(2000);
+display.clearDisplay();
+display.setCursor(0,0);
+display.setTextSize(2); // - a line is 21 chars in this size
+display.setTextColor(WHITE);
+
+//TM1638
+
+tm.displayBegin();  
+
+//RTC
+Wire.begin();
+Serial.begin(115200);
+Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
+
+// You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
+// setDateAndTime(); // Only need to do this once ever.
+// You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
+
+//Servo
+myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
+
+}
+
+
+
+// LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP 
+
+void loop()
+{
+Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
+Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
+rtc.getSecond() << endl;
+double currentTime = rtc.getHour(h12Flag, pmFlag) && "." && rtc.getMinute() && "." && rtc.getSecond();
+
+//potentiomometer
+int sensorValue = analogRead(A0);
+
+
+//display thingy
+tm.reset();
+tm.displayIntNum(rtc.getSecond(), false);
+
+display.clearDisplay();
+display.setCursor(0,0);
+display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << "\n" << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
+rtc.getSecond() << endl;
+display << sensorValue;
+
+display.display();
+
+// LED LED LED
+buttons = tm.readButtons();
+tm.setLEDs(buttons);
+
+//Servo
+
+int pos = rtc.getSecond() *3;
+myservo.write(pos);
+
+
+
+
+delay(0); // do nothing
+
+
+}
+
+
+
