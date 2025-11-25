@@ -42,10 +42,10 @@ void setDateAndTime(){
 rtc.setClockMode(false); // false = 24hr clock mode
 rtc.setYear(25);
 rtc.setMonth(11);
-rtc.setDate(24);
-rtc.setHour(18);
-rtc.setMinute(40);
-rtc.setSecond(0);
+rtc.setDate(25);
+rtc.setHour(11);
+rtc.setMinute(59);
+rtc.setSecond(55);
 }
 
 // SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP 
@@ -75,7 +75,9 @@ Serial.begin(115200);
 Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
 // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-// setDateAndTime(); // Only need to do this once ever.
+
+setDateAndTime(); // Only need to do this once ever.
+
 // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
 
 //Servo
@@ -84,14 +86,39 @@ myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo objec
 }
 
 
+void twelveOClock()
+{
+
+  if ((rtc.getHour(h12Flag, pmFlag) == 0xC) && (rtc.getMinute()== 0x0))
+  {
+    // clear display
+    display.clearDisplay();
+    display.setCursor(0,0);
+    // draw circle
+    // display.drawCircle(centerX, centerY, radius, color)
+    display.drawCircle(60, 30, 30, WHITE);
+    // draw hour hand
+    // display.drawLine(startX, startY, endX, endY, color)
+    display.drawLine(60,30,60,5, WHITE); // 12 o'clock
+
+  }
+
+}
+
+
+
 
 // LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP 
 
 void loop()
 {
+
+  // some serial stuff 
 Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
 Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
 rtc.getSecond() << endl;
+
+//trying to get 7seg to display full time
 double currentTime = rtc.getHour(h12Flag, pmFlag) && "." && rtc.getMinute() && "." && rtc.getSecond();
 
 //potentiomometer
@@ -119,6 +146,7 @@ tm.setLEDs(buttons);
 int pos = rtc.getSecond() *3;
 myservo.write(pos);
 
+twelveOClock();
 
 
 

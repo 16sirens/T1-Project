@@ -20,6 +20,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial << endl << "Hello World" << endl;
+  
   // -- OLED --------------
   display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
   display.display();
