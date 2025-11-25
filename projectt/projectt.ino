@@ -122,7 +122,7 @@ myservo.write(pos);
 
 
 
-delay(0); // do nothing
+delay(200); // do nothing
 
 
 }
