@@ -39,14 +39,14 @@ display.drawLine(60,30,60,5, WHITE); // 12 o'clock
 display.drawLine(60,30,75,9,WHITE); // 1 o'clock
 display.drawLine(60,30,83,17,WHITE); // 2 o'clock
 display.drawLine(60,30,85,30,WHITE); // 3 o'clock
-display.drawLine(60,30,77,37,WHITE); // 4 o'clock
-display.drawLine(60,30,67,47,WHITE); // 5 o'clock
+display.drawLine(60,30,83,43,WHITE); // 4 o'clock
+display.drawLine(60,30,75,51,WHITE); // 5 o'clock
 display.drawLine(60,30,60,55,WHITE); // 6 o'clock
-display.drawLine(60,30,55,47,WHITE);// 7 o'clock
-display.drawLine(60,30,45,37,WHITE);// 8 o'clock
+display.drawLine(60,30,45,51,WHITE);// 7 o'clock
+display.drawLine(60,30,37,43,WHITE);// 8 o'clock
 display.drawLine(60,30,35,30,WHITE); // 9 o'clock
-display.drawLine(60,30,25,27,WHITE); // 10 o'clock
-display.drawLine(60,30,15,17,WHITE); // 11 o'clock
+display.drawLine(60,30,37,17,WHITE); // 10 o'clock
+display.drawLine(60,30,45,9,WHITE); // 11 o'clock
 
 
 
