@@ -65,7 +65,7 @@ void setup()
 
   // OLED
   Serial.begin(115200);
-  Serial << endl << "Hello World" << endl;
+  Serial << endl << "Hello OLED World" << endl;
 
   // -- OLED --------------
   display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
@@ -81,7 +81,6 @@ void setup()
 
   //RTC
   Wire.begin();
-  Serial.begin(115200);
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
@@ -92,11 +91,27 @@ setDateAndTime(); // Only need to do this once ever.
 
 }
 
+// funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
+void hourlyCheck()
+{
+  // check if it is the first minute of the hour
+  if (rtc.getMinute()== 0x0)
+  {
+    int twelveHour = rtc.getHour(h12Flag, pmFlag);
+    
+    // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
+    if (twelveHour >= 12)
+    {
+      twelveHour -= 12;
+      // call the function to display hour hand
+      displayHour(twelveHour);
+    }
+  }
+}
 
 // function to display the hour hand
 void displayHour(int input)
 {
-  
   // clear display
     display.clearDisplay();
     display.setCursor(0,0);
@@ -125,33 +140,38 @@ void displayHour(int input)
 }
 
 
-// funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
-void hourlyCheck()
-{
-  int twelveHour = rtc.getHour(h12Flag, pmFlag);
-
-  // check if it is the first minute of the hour
-  if (rtc.getMinute()== 0x0)
-  {
-    // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
-    if (twelveHour >= 12)
-    {
-      twelveHour -= 12;
-      // call the function to display hour hand
-      displayHour(twelveHour);
-    }
-  }
-}
-
 // Power Reserve Function
 void powerReserve(int power)
 {
   
 
+}
+
+void displayOutput(bool hasPower,int sensorValue,int pos)
+{
+
+  if (hasPower == true)
+  {
+    // everything the display outputs
+    display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
+    display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+    display << sensorValue << endl;
+    display << pos << endl;
+    hourlyCheck();
+  }
 
 
 }
 
+void serialOutput(int pos)
+{
+  // some serial stuff 
+  Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
+  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
+  rtc.getSecond() << endl;
+  Serial << pos << endl;
+
+}
   
 //     /$$                                    
 //    | $$                                    
@@ -169,17 +189,13 @@ void powerReserve(int power)
 void loop()
 {
 
-  bool hasPower = false;
+  bool hasPower = true;
+ 
   int power = 0;
 
 
-    // some serial stuff 
-  Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
-  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
-  rtc.getSecond() << endl;
+  
 
-  //trying to get 7seg to display full time
-  double currentTime = rtc.getHour(h12Flag, pmFlag) && "." && rtc.getMinute() && "." && rtc.getSecond();
 
   //potentiomometer
   int sensorValue = analogRead(A0);
@@ -191,9 +207,6 @@ void loop()
 
   display.clearDisplay();
   display.setCursor(0,0);
-  display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << "\n" << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
-  rtc.getSecond() << endl;
-  display << sensorValue << endl;
   
 
   // LED LED LED
@@ -203,13 +216,16 @@ void loop()
   //Servo
 
   int pos = sensorValue/6;
-  display << pos << endl;
-  Serial << pos << endl;
+  
+  
   myservo.write(pos);
 
-  hourlyCheck();
-
+  
+  displayOutput(hasPower, sensorValue, pos);
+  serialOutput(pos);
+ 
   display.display();
+
   delay(200); // do nothing
 
 }
