@@ -193,8 +193,8 @@ void loop()
   display.setCursor(0,0);
   display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << "\n" << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
   rtc.getSecond() << endl;
-  display << sensorValue;
-  display.display();
+  display << sensorValue << endl;
+  
 
   // LED LED LED
   buttons = tm.readButtons();
@@ -209,6 +209,7 @@ void loop()
 
   hourlyCheck();
 
+  display.display();
   delay(200); // do nothing
 
 }
