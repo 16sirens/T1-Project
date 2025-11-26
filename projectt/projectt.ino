@@ -89,6 +89,8 @@ myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo objec
 void twelveOClock()
 {
 
+
+
   if ((rtc.getHour(h12Flag, pmFlag) == 0xC) && (rtc.getMinute()== 0x0))
   {
     // clear display
@@ -100,7 +102,9 @@ void twelveOClock()
     // draw hour hand
     // display.drawLine(startX, startY, endX, endY, color)
     display.drawLine(60,30,60,5, WHITE); // 12 o'clock
-
+    Serial << "hello???" << endl;
+    display.display();
+    delay(200);
   }
 
 }
