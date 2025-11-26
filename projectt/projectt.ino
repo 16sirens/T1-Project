@@ -1,14 +1,10 @@
 #include <Streaming.h>
 #include <Wire.h>
-// -- 7SEG LED&KEY --
-#include <TM1638plus.h> 
-// -- OLED --
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-// -- Servo --
-#include <Servo.h>
-// -- RTC --
-#include <DS3231.h>
+#include <TM1638plus.h>       // 7SEG LED&KEY
+#include <Adafruit_GFX.h>     //  OLED 
+#include <Adafruit_SSD1306.h> //  OLED 
+#include <Servo.h>            //  Servo 
+#include <DS3231.h>           //  RTC 
 
 
 Servo myservo;  // create servo object to control a servo
@@ -18,12 +14,16 @@ Servo myservo;  // create servo object to control a servo
 #define OLED_SCREEN_I2C_ADDRESS 0x3C
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
+// 7SEG display 
 #define STROBE_TM D5 // strobe = GPIO connected to strobe line of module
 #define CLOCK_TM D6 // clock = GPIO connected to clock line of module
 #define DIO_TM D7 // data = GPIO connected to data line of module
+
 bool high_freq = false; //default false, If using a high freq CPU > ~100 MHZ set to true.
+
+// constructor object (GPIO STB , GPIO CLOCK , GPIO DIO, use high freq MCU)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 // Constructor object (GPIO STB , GPIO CLOCK , GPIO DIO, use high freq MCU)
 TM1638plus tm(STROBE_TM, CLOCK_TM , DIO_TM, high_freq);
@@ -36,59 +36,28 @@ DS3231 rtc;
 bool century = false;
 bool h12Flag;
 bool pmFlag;
-void setDateAndTime(){
-rtc.setClockMode(false); // false = 24hr clock mode
-rtc.setYear(25);
-rtc.setMonth(11);
-rtc.setDate(25);
-rtc.setHour(20);
-rtc.setMinute(59);
-rtc.setSecond(55);
-}
+
+//
+//  ______                                   __      __                               
+// /      \                                 |  \    |  \                              
+//|  $$$$$$\ __    __  _______    _______  _| $$_    \$$  ______   _______    _______ 
+//| $$_  \$$|  \  |  \|       \  /       \|   $$ \  |  \ /      \ |       \  /       \
+//| $$ \    | $$  | $$| $$$$$$$\|  $$$$$$$ \$$$$$$  | $$|  $$$$$$\| $$$$$$$\|  $$$$$$$
+//| $$$$    | $$  | $$| $$  | $$| $$        | $$ __ | $$| $$  | $$| $$  | $$ \$$    \ 
+//| $$      | $$__/ $$| $$  | $$| $$_____   | $$|  \| $$| $$__/ $$| $$  | $$ _\$$$$$$\
+//| $$       \$$    $$| $$  | $$ \$$     \   \$$  $$| $$ \$$    $$| $$  | $$|       $$
+// \$$        \$$$$$$  \$$   \$$  \$$$$$$$    \$$$$  \$$  \$$$$$$  \$$   \$$ \$$$$$$$ 
 
 
-//                           /$$                        
-//                          | $$                        
-//      /$$$$$$$  /$$$$$$  /$$$$$$   /$$   /$$  /$$$$$$ 
-//     /$$_____/ /$$__  $$|_  $$_/  | $$  | $$ /$$__  $$
-//    |  $$$$$$ | $$$$$$$$  | $$    | $$  | $$| $$  \ $$
-//     \____  $$| $$_____/  | $$ /$$| $$  | $$| $$  | $$
-//     /$$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$$$/| $$$$$$$/
-//    |_______/  \_______/   \___/   \______/ | $$____/ 
-//                                            | $$      
-//                                            | $$      
-//                                            |__/      
-
-
-void setup()
+void setDateAndTime()
 {
-
-  // OLED
-  Serial.begin(115200);
-  Serial << endl << "Hello OLED World" << endl;
-
-  // -- OLED --------------
-  display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
-  display.display();
-  delay(2000);
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.setTextSize(2); // - a line is 21 chars in this size
-  display.setTextColor(WHITE);
-
-  //TM1638
-  tm.displayBegin();  
-
-  //RTC
-  Wire.begin();
-  Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
-
-  // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-setDateAndTime(); // Only need to do this once ever.
-
-  //Servo
-  myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
-
+  rtc.setClockMode(false); // false = 24hr clock mode
+  rtc.setYear(25);
+  rtc.setMonth(11);
+  rtc.setDate(25);
+  rtc.setHour(20);
+  rtc.setMinute(59);
+  rtc.setSecond(55);
 }
 
 // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
@@ -139,7 +108,6 @@ void displayHour(int input)
     display.display();
 }
 
-
 // Power Reserve Function
 void powerReserve(int power)
 {
@@ -172,6 +140,52 @@ void serialOutput(int pos)
   Serial << pos << endl;
 
 }
+
+//                           /$$                        
+//                          | $$                        
+//      /$$$$$$$  /$$$$$$  /$$$$$$   /$$   /$$  /$$$$$$ 
+//     /$$_____/ /$$__  $$|_  $$_/  | $$  | $$ /$$__  $$
+//    |  $$$$$$ | $$$$$$$$  | $$    | $$  | $$| $$  \ $$
+//     \____  $$| $$_____/  | $$ /$$| $$  | $$| $$  | $$
+//     /$$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$$$/| $$$$$$$/
+//    |_______/  \_______/   \___/   \______/ | $$____/ 
+//                                            | $$      
+//                                            | $$      
+//                                            |__/      
+
+
+void setup()
+{
+
+  // OLED
+  Serial.begin(115200);
+  Serial << endl << "Hello OLED World" << endl;
+
+  // -- OLED --------------
+  display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.setTextSize(2); // - a line is 21 chars in this size
+  display.setTextColor(WHITE);
+
+  //TM1638
+  tm.displayBegin();  
+
+  //RTC
+  Wire.begin();
+  Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
+
+  // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
+  setDateAndTime(); // Only need to do this once ever.
+
+  //Servo
+  myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
+
+}
+
+
   
 //     /$$                                    
 //    | $$                                    
