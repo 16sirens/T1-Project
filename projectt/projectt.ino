@@ -87,7 +87,7 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  setDateAndTime(); // Only need to do this once ever.
+setDateAndTime(); // Only need to do this once ever.
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
@@ -140,12 +140,19 @@ void hourlyCheck()
     {
       twelveHour -= 12;
       // call the function to display hour hand
-      displayHour(twelveHour)
+      displayHour(twelveHour);
     }
   }
 }
 
+// Power Reserve Function
+void powerReserve(int power)
+{
+  
 
+
+
+}
 
   
 //     /$$                                    
@@ -163,6 +170,10 @@ void hourlyCheck()
 
 void loop()
 {
+
+  bool hasPower = false;
+  int power = 0;
+
 
     // some serial stuff 
   Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
@@ -193,7 +204,9 @@ void loop()
 
   //Servo
 
-  int pos = rtc.getSecond() *3;
+  int pos = sensorValue/6;
+  display << pos << endl;
+  Serial << pos << endl;
   myservo.write(pos);
 
   hourlyCheck();
