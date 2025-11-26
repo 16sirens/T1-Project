@@ -43,7 +43,7 @@ rtc.setClockMode(false); // false = 24hr clock mode
 rtc.setYear(25);
 rtc.setMonth(11);
 rtc.setDate(25);
-rtc.setHour(00);
+rtc.setHour(20);
 rtc.setMinute(59);
 rtc.setSecond(55);
 }
@@ -85,9 +85,10 @@ myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo objec
 
 }
 
+
+// function to display the hour hand
 void displayHour(int input)
 {
-  
   
   // clear display
     display.clearDisplay();
@@ -98,44 +99,41 @@ void displayHour(int input)
 
     // switch case to display the correct hour hand
     switch(input){
-      case 1:display.drawLine(60,30,75,9,WHITE); break;   // 1 o'clock
-      case 2:display.drawLine(60,30,83,17,WHITE); break;  // 2 o'clock
-      case 3:display.drawLine(60,30,85,30,WHITE); break;  // 3 o'clock
-      case 4:display.drawLine(60,30,83,43,WHITE); break;  // 4 o'clock
-      case 5:display.drawLine(60,30,75,51,WHITE); break;  // 5 o'clock
-      case 6:display.drawLine(60,30,60,55,WHITE); break;  // 6 o'clock
-      case 7:display.drawLine(60,30,45,51,WHITE); break;  // 7 o'clock
-      case 8:display.drawLine(60,30,37,43,WHITE); break;  // 8 o'clock
-      case 9:display.drawLine(60,30,35,30,WHITE); break;  // 9 o'clock
+      case 0:display.drawLine(60,30,60,5, WHITE); break;  // 12  o'clock
+      case 1:display.drawLine(60,30,75,9,WHITE); break;   // 1  o'clock
+      case 2:display.drawLine(60,30,83,17,WHITE); break;  // 2  o'clock
+      case 3:display.drawLine(60,30,85,30,WHITE); break;  // 3  o'clock
+      case 4:display.drawLine(60,30,83,43,WHITE); break;  // 4  o'clock
+      case 5:display.drawLine(60,30,75,51,WHITE); break;  // 5  o'clock
+      case 6:display.drawLine(60,30,60,55,WHITE); break;  // 6  o'clock
+      case 7:display.drawLine(60,30,45,51,WHITE); break;  // 7  o'clock
+      case 8:display.drawLine(60,30,37,43,WHITE); break;  // 8  o'clock
+      case 9:display.drawLine(60,30,35,30,WHITE); break;  // 9  o'clock
       case 10:display.drawLine(60,30,37,17,WHITE); break; // 10 o'clock
       case 11:display.drawLine(60,30,45,9,WHITE); break;  // 11 o'clock
-      case 12:display.drawLine(60,30,60,5, WHITE); break; // 12 o'cloc
     }
-
-    Serial << "It's "  << input << "  o' clock!" << endl;
+    // serial communication
+    Serial << "It's "  << input << " o' clock!" << endl;
     display.display();
 }
 
+
+// funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
 void hourlyCheck()
 {
+  int twelveHour = rtc.getHour(h12Flag, pmFlag);
+
+  // check if it is the first minute of the hour
   if (rtc.getMinute()== 0x0)
   {
-
-    displayHour(rtc.getHour(h12Flag, pmFlag));
-    // clear display
-    //display.clearDisplay();
-    //display.setCursor(0,0);
-    // draw circle
-    // display.drawCircle(centerX, centerY, radius, color)
-    //display.drawCircle(60, 30, 30, WHITE);
-    // draw hour hand
-    // display.drawLine(startX, startY, endX, endY, color)
-    //display.drawLine(60,30,60,5, WHITE); // 12 o'clock
-    //Serial << "It's 12 o' clock!" << endl;
-    //display.display();
+    // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
+    if (twelveHour >= 12)
+    {
+      twelveHour -= 12;
+      // call the function to display hour hand
+      displayHour(twelveHour)
+    }
   }
-
-  
 }
 
 
