@@ -48,40 +48,49 @@ rtc.setMinute(59);
 rtc.setSecond(55);
 }
 
-// SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP 
+
+//                           /$$                        
+//                          | $$                        
+//      /$$$$$$$  /$$$$$$  /$$$$$$   /$$   /$$  /$$$$$$ 
+//     /$$_____/ /$$__  $$|_  $$_/  | $$  | $$ /$$__  $$
+//    |  $$$$$$ | $$$$$$$$  | $$    | $$  | $$| $$  \ $$
+//     \____  $$| $$_____/  | $$ /$$| $$  | $$| $$  | $$
+//     /$$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$$$/| $$$$$$$/
+//    |_______/  \_______/   \___/   \______/ | $$____/ 
+//                                            | $$      
+//                                            | $$      
+//                                            |__/      
+
 
 void setup()
 {
 
-// OLED
-Serial.begin(115200);
-Serial << endl << "Hello World" << endl;
-// -- OLED --------------
-display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
-display.display();
-delay(2000);
-display.clearDisplay();
-display.setCursor(0,0);
-display.setTextSize(2); // - a line is 21 chars in this size
-display.setTextColor(WHITE);
+  // OLED
+  Serial.begin(115200);
+  Serial << endl << "Hello World" << endl;
 
-//TM1638
+  // -- OLED --------------
+  display.begin(SSD1306_SWITCHCAPVCC, OLED_SCREEN_I2C_ADDRESS);
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.setTextSize(2); // - a line is 21 chars in this size
+  display.setTextColor(WHITE);
 
-tm.displayBegin();  
+  //TM1638
+  tm.displayBegin();  
 
-//RTC
-Wire.begin();
-Serial.begin(115200);
-Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
+  //RTC
+  Wire.begin();
+  Serial.begin(115200);
+  Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
-// You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
+  // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
+  setDateAndTime(); // Only need to do this once ever.
 
-setDateAndTime(); // Only need to do this once ever.
-
-// You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-
-//Servo
-myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
+  //Servo
+  myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
 }
 
@@ -138,51 +147,58 @@ void hourlyCheck()
 
 
 
+  
+//     /$$                                    
+//    | $$                                    
+//    | $$        /$$$$$$   /$$$$$$   /$$$$$$ 
+//    | $$       /$$__  $$ /$$__  $$ /$$__  $$
+//    | $$      | $$  \ $$| $$  \ $$| $$  \ $$
+//    | $$      | $$  | $$| $$  | $$| $$  | $$
+//    | $$$$$$$$|  $$$$$$/|  $$$$$$/| $$$$$$$/
+//    |________/ \______/  \______/ | $$____/ 
+//                                  | $$      
+//                                  | $$      
+//                                  |__/ (main one)     
 
-// LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP 
 
 void loop()
 {
 
-  // some serial stuff 
-Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
-Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
-rtc.getSecond() << endl;
+    // some serial stuff 
+  Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
+  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
+  rtc.getSecond() << endl;
 
-//trying to get 7seg to display full time
-double currentTime = rtc.getHour(h12Flag, pmFlag) && "." && rtc.getMinute() && "." && rtc.getSecond();
+  //trying to get 7seg to display full time
+  double currentTime = rtc.getHour(h12Flag, pmFlag) && "." && rtc.getMinute() && "." && rtc.getSecond();
 
-//potentiomometer
-int sensorValue = analogRead(A0);
-
-
-//display thingy
-tm.reset();
-tm.displayIntNum(rtc.getSecond(), false);
-
-display.clearDisplay();
-display.setCursor(0,0);
-display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << "\n" << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
-rtc.getSecond() << endl;
-display << sensorValue;
-
-display.display();
-
-// LED LED LED
-buttons = tm.readButtons();
-tm.setLEDs(buttons);
-
-//Servo
-
-int pos = rtc.getSecond() *3;
-myservo.write(pos);
-
-hourlyCheck();
+  //potentiomometer
+  int sensorValue = analogRead(A0);
 
 
+  //display thingy
+  tm.reset();
+  tm.displayIntNum(rtc.getSecond(), false);
 
-delay(200); // do nothing
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << "\n" << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
+  rtc.getSecond() << endl;
+  display << sensorValue;
+  display.display();
 
+  // LED LED LED
+  buttons = tm.readButtons();
+  tm.setLEDs(buttons);
+
+  //Servo
+
+  int pos = rtc.getSecond() *3;
+  myservo.write(pos);
+
+  hourlyCheck();
+
+  delay(200); // do nothing
 
 }
 
