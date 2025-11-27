@@ -47,23 +47,31 @@ bool pmFlag;
 class Clock
 {
   
-  bool paused = false;
-  int power = 0;
+  bool paused;
+  int power;
   // TM1638 BUTTON
   int buttons;
   // potentiomometer
   int sensorValue;
   // pos
-  int pos = sensorValue/6;
+  int pos;
 
   public:
 
     Clock();
     ~Clock();
 
+    // if it breaks, remove deconstructor thingy
+    // setters
+    void setPaused(bool input)
+    {
+      paused = input;
+    }
 
-  // if it breaks, remove deconstructor thingy
-
+    void setPower(int input)
+    {
+      power = input;
+    }
 
     void setButtons()
     {
@@ -75,9 +83,106 @@ class Clock
       sensorValue = analogRead(A0);
     }
 
-    int getPaused()
+    void setPos()
+    {
+      pos = sensorValue/6;
+    }
+    
+    void setMinute()
+    {
+      // increments or decrements minute
+      int minute = rtc.getMinute();
+      if (buttons == 32)
+      {
+        rtc.setMinute(minute += 1);
+      }
+      else if (buttons == 64)
+      {
+        rtc.setMinute(minute -= 1);
+      }
+    }
+     
+    void setHour()
+    {
+      // increments or decrements hour
+      int hour =rtc.getHour(h12Flag, pmFlag);
+      if (buttons == 32)
+      {
+        rtc.setHour(hour += 1);
+      }
+      else if (buttons == 64)
+      {
+        rtc.setHour(hour -= 1);
+      }
+    }
+     
+    void setDate()
+    {
+      // increments or decrements date
+      int day = rtc.getDate();
+      if (buttons == 32)
+      {
+        rtc.setDate(day += 1);
+      }
+      else if (buttons == 64)
+      {
+        rtc.setDate(day-= 1);
+      }
+    }
+     
+    void setMonth()
+    {
+      // increments or decrements month
+      int month = rtc.getMonth(century);
+      if (buttons == 32)
+      {
+        rtc.setMonth(month += 1);
+      }
+      else if (buttons == 64)
+      {
+        rtc.setMonth(month -= 1);
+      }
+    }
+     
+    void setYear()
+    {
+      // increments or decrements year
+      int year = rtc.getYear();
+      if (buttons == 32)
+      {
+        rtc.setYear(year += 1);
+      }
+      else if (buttons == 64)
+      {
+        rtc.setYear(year -= 1);
+      }
+    }
+ 
+    
+    void ifPaused() 
+    {
+      // effectively pauses the time
+      if (paused == true)
+      {
+        // rtc.setClockMode(false); // false = 24hr clock mode
+        rtc.setSecond(rtc.getSecond());
+        rtc.setMinute(rtc.getMinute());
+        rtc.setHour(rtc.getHour(h12Flag, pmFlag));
+        rtc.setDate(rtc.getDate());
+        rtc.setMonth(rtc.getMonth(century));
+        rtc.setYear(rtc.getYear());
+      }
+    }
+
+    // getters
+    bool getPaused()
     {
       return paused;
+    }
+
+    int getPower()
+    {
+      return power;
     }
 
     int getButtons()
@@ -90,22 +195,9 @@ class Clock
       return sensorValue;
     }
 
-
-    void setDateAndTime()
-    {
-      rtc.setClockMode(false); // false = 24hr clock mode
-      rtc.setYear(25);
-      rtc.setMonth(11);
-      rtc.setDate(25);
-      rtc.setHour(20);
-      rtc.setMinute(59);
-      rtc.setSecond(55);
-    }
-
     // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
     void hourlyCheck()
     {
-
         if (paused == false)
       {
         // check if it is the first minute of the hour
@@ -186,23 +278,25 @@ class Clock
     void buttonPressCheck()
     {
       // buttons = tm.readButtons();
-      if (buttons == 1)
+      if (buttons <= 16 && buttons >= 1)
       {
-        pauseTime();
-      } 
+        setPaused(true);
+        switch(buttons)
+        {
+          case 1:setMinute(); break;
+          case 2:setHour(); break;
+          case 4:setDate(); break;
+          case 8:setMonth(); break;
+          case 16:setYear(); break;
+        }
+      }
+      else if (buttons >= 128)
+      {
+        setPaused(false);
+      }
     }
 
-    void pauseTime()
-    {
-      // effectively pauses the time
-      rtc.setSecond(rtc.getSecond());
-      rtc.setMinute(rtc.getMinute());
-      rtc.setHour(rtc.getHour(h12Flag, pmFlag));
-      rtc.setDate(rtc.getDate());
-      rtc.setMonth(rtc.getMonth(century));
-      rtc.setYear(rtc.getYear());
-      paused = true;
-    }
+
 
     void run7SegDisplay()
     {
@@ -269,6 +363,8 @@ void setup()
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
+  MainClock.setPaused(false);
+  MainClock.setPower(0);
 }
 
 
@@ -290,12 +386,22 @@ void loop()
 {
   display.clearDisplay();
   display.setCursor(0,0);
-  // display << "hi";
 
+  MainClock.ifPaused();
 
-  //clock.displayOutput();
-  //clock.serialOutput();
-  //MainClock.run7SegDisplay();
+  MainClock.setButtons();
+  MainClock.setSensorValue();
+  MainClock.setPos();
+
+  MainClock.buttonPressCheck();
+
+  MainClock.displayOutput();
+  MainClock.serialOutput();
+  MainClock.run7SegDisplay();
+  MainClock.runServo();
+
+  
+
 
   display.display();
   delay(200); // do nothing
