@@ -115,12 +115,11 @@ void powerReserve(int power)
 
 }
 
-void displayOutput(bool hasPower,int sensorValue,int pos)
+void displayOutput(bool paused,int sensorValue,int pos)
 {
-
-  if (hasPower == true)
+  if (paused == false)
   {
-    // everything the display outputs
+    // everything the display outputs normally
     display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
     display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
     display << sensorValue << endl;
@@ -131,15 +130,33 @@ void displayOutput(bool hasPower,int sensorValue,int pos)
 
 }
 
-void serialOutput(int pos)
+void serialOutput(int pos, byte buttons)
 {
   // some serial stuff 
   Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
-  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" <<
-  rtc.getSecond() << endl;
-  Serial << pos << endl;
+  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+  Serial << "Servo Pos: " << pos << endl;
+  Serial << "Button pressed: " << buttons << endl;
 
 }
+
+
+
+void buttonPressCheck(bool& pause)
+{
+  buttons = tm.readButtons();
+  if (buttons == 1)
+  {
+    pause = true;
+  } 
+}
+
+void pauseTime()
+{
+
+
+}
+
 
 //                           /$$                        
 //                          | $$                        
@@ -203,8 +220,7 @@ void setup()
 void loop()
 {
 
-  bool hasPower = true;
- 
+  bool paused = false;
   int power = 0;
 
 
@@ -234,12 +250,14 @@ void loop()
   
   myservo.write(pos);
 
-  
-  displayOutput(hasPower, sensorValue, pos);
-  serialOutput(pos);
- 
-  display.display();
+  buttonPressCheck(paused);
 
+
+  displayOutput(paused, sensorValue, pos);
+  serialOutput(pos,buttons);
+  
+
+  display.display();
   delay(200); // do nothing
 
 }
