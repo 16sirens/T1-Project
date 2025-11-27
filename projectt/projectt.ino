@@ -1,3 +1,4 @@
+/////////////////////////////////////// this 
 #include <Streaming.h>
 #include <Wire.h>
 #include <TM1638plus.h>       // 7SEG LED&KEY
@@ -5,7 +6,7 @@
 #include <Adafruit_SSD1306.h> //  OLED 
 #include <Servo.h>            //  Servo 
 #include <DS3231.h>           //  RTC 
-
+#include <string.h>
 Servo myservo;  // create servo object to control a servo
 
 // OLED i2c
@@ -31,6 +32,8 @@ DS3231 rtc;
 bool century = false;
 bool h12Flag;
 bool pmFlag;
+
+/////////////////////////////////////// 
 
 
 //           __                               
@@ -318,7 +321,26 @@ class Clock
     {
       //display thingy
       tm.reset();
-      tm.displayIntNum(rtc.getSecond(), false);
+      int h1,h2,m1,m2,s1,s2;
+      int hours = rtc.getHour(h12Flag, pmFlag);
+      int mins = rtc.getMinute();
+      int seconds = rtc.getSecond();
+
+      h1 = hours /10;    // https://stackoverflow.com/questions/4261589/how-do-i-split-an-int-into-its-digits
+      h2 = hours % 10;
+      m1 = mins / 10;
+      m2 = mins % 10;
+      s1 = seconds /10;
+      s2 = seconds % 10;
+
+
+      tm.displayHex(0,h1);
+      tm.displayHex(1,h2);
+      tm.displayHex(3,m1);
+      tm.displayHex(4,m2);
+      tm.displayHex(6,s1);
+      tm.displayHex(7,s2);
+
       // LED LED LED
       tm.setLEDs(getButtons());
     }
