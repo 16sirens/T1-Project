@@ -160,14 +160,25 @@ class Clock
         rtc.setYear(year -= 1);
       }
     }
- 
+
+    void setDateAndTime()
+    {
+      // set date and time ONCE
+      rtc.setClockMode(false); // false = 24hr clock mode
+      rtc.setSecond(0);
+      rtc.setMinute(0);
+      rtc.setHour(0);
+      rtc.setDate(1);
+      rtc.setMonth(1);
+      rtc.setYear(25);
+    }
     
     void ifPaused() 
     {
       // effectively pauses the time
       if (paused == true)
       {
-        // rtc.setClockMode(false); // false = 24hr clock mode
+        
         rtc.setSecond(rtc.getSecond());
         rtc.setMinute(rtc.getMinute());
         rtc.setHour(rtc.getHour(h12Flag, pmFlag));
@@ -396,7 +407,7 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  //MainClock.setDateAndTime(); // Only need to do this once ever.
+  MainClock.setDateAndTime(); // Only need to do this once ever.
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
