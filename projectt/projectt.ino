@@ -6,7 +6,6 @@
 #include <Servo.h>            //  Servo 
 #include <DS3231.h>           //  RTC 
 
-
 Servo myservo;  // create servo object to control a servo
 
 // OLED i2c
@@ -19,7 +18,6 @@ Servo myservo;  // create servo object to control a servo
 #define STROBE_TM D5 // strobe = GPIO connected to strobe line of module
 #define CLOCK_TM D6 // clock = GPIO connected to clock line of module
 #define DIO_TM D7 // data = GPIO connected to data line of module
-
 bool high_freq = false; //default false, If using a high freq CPU > ~100 MHZ set to true.
 
 // constructor object (GPIO STB , GPIO CLOCK , GPIO DIO, use high freq MCU)
@@ -27,9 +25,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 // Constructor object (GPIO STB , GPIO CLOCK , GPIO DIO, use high freq MCU)
 TM1638plus tm(STROBE_TM, CLOCK_TM , DIO_TM, high_freq);
-
-// TM1638 BUTTON
-byte buttons;
 
 // DS3231 uses I2C bus - device ID 0x68
 DS3231 rtc;
@@ -47,136 +42,167 @@ bool pmFlag;
 //| $$_____ | $$|  $$$$$$$ _\$$$$$$\ _\$$$$$$\
 // \$$     \| $$ \$$    $$|       $$|       $$
 //  \$$$$$$$ \$$  \$$$$$$$ \$$$$$$$  \$$$$$$$ 
-                                            
+//                        
                                  
-                                            
-
-//
-//  ______                                   __      __                               
-// /      \                                 |  \    |  \                              
-//|  $$$$$$\ __    __  _______    _______  _| $$_    \$$  ______   _______    _______ 
-//| $$_  \$$|  \  |  \|       \  /       \|   $$ \  |  \ /      \ |       \  /       \
-//| $$ \    | $$  | $$| $$$$$$$\|  $$$$$$$ \$$$$$$  | $$|  $$$$$$\| $$$$$$$\|  $$$$$$$
-//| $$$$    | $$  | $$| $$  | $$| $$        | $$ __ | $$| $$  | $$| $$  | $$ \$$    \ 
-//| $$      | $$__/ $$| $$  | $$| $$_____   | $$|  \| $$| $$__/ $$| $$  | $$ _\$$$$$$\
-//| $$       \$$    $$| $$  | $$ \$$     \   \$$  $$| $$ \$$    $$| $$  | $$|       $$
-// \$$        \$$$$$$  \$$   \$$  \$$$$$$$    \$$$$  \$$  \$$$$$$  \$$   \$$ \$$$$$$$ 
-
-
-void setDateAndTime()
+class Clock
 {
-  rtc.setClockMode(false); // false = 24hr clock mode
-  rtc.setYear(25);
-  rtc.setMonth(11);
-  rtc.setDate(25);
-  rtc.setHour(20);
-  rtc.setMinute(59);
-  rtc.setSecond(55);
-}
 
-// funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
-void hourlyCheck(bool paused)
-{
-    if (paused == false)
-  {
-    // check if it is the first minute of the hour
-    if (rtc.getMinute()== 0x0)
+  bool paused = false;
+  int power = 0;
+  // TM1638 BUTTON
+  int buttons = tm.readButtons();
+  //potentiomometer
+  int sensorValue = analogRead(A0);
+  
+  public:
+
+    int getButtons()
     {
-      int twelveHour = rtc.getHour(h12Flag, pmFlag);
-      
-      // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
-      if (twelveHour >= 12)
+      return buttons;
+    }
+
+    int getSensorValue()
+    {
+      return sensorValue;
+    }
+
+
+    void setDateAndTime()
+    {
+      rtc.setClockMode(false); // false = 24hr clock mode
+      rtc.setYear(25);
+      rtc.setMonth(11);
+      rtc.setDate(25);
+      rtc.setHour(20);
+      rtc.setMinute(59);
+      rtc.setSecond(55);
+    }
+
+    // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
+    void hourlyCheck(bool paused)
+    {
+        if (paused == false)
       {
-        twelveHour -= 12;
-        // call the function to display hour hand
-        displayHour(twelveHour);
+        // check if it is the first minute of the hour
+        if (rtc.getMinute()== 0x0)
+        {
+          int twelveHour = rtc.getHour(h12Flag, pmFlag);
+          
+          // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
+          if (twelveHour >= 12)
+          {
+            twelveHour -= 12;
+            // call the function to display hour hand
+            displayHour(twelveHour);
+          }
+        }
       }
     }
-  }
-}
 
-// function to display the hour hand
-void displayHour(int input)
-{
-  // clear display
-    display.clearDisplay();
-    display.setCursor(0,0);
-    // draw circle
-    // display.drawCircle(centerX, centerY, radius, color)
-    display.drawCircle(60, 30, 30, WHITE);
+    // function to display the hour hand
+    void displayHour(int input)
+    {
+      // clear display
+        display.clearDisplay();
+        display.setCursor(0,0);
+        // draw circle
+        // display.drawCircle(centerX, centerY, radius, color)
+        display.drawCircle(60, 30, 30, WHITE);
 
-    // switch case to display the correct hour hand
-    switch(input){
-      case 0:display.drawLine(60,30,60,5, WHITE); break;  // 12  o'clock
-      case 1:display.drawLine(60,30,75,9,WHITE); break;   // 1  o'clock
-      case 2:display.drawLine(60,30,83,17,WHITE); break;  // 2  o'clock
-      case 3:display.drawLine(60,30,85,30,WHITE); break;  // 3  o'clock
-      case 4:display.drawLine(60,30,83,43,WHITE); break;  // 4  o'clock
-      case 5:display.drawLine(60,30,75,51,WHITE); break;  // 5  o'clock
-      case 6:display.drawLine(60,30,60,55,WHITE); break;  // 6  o'clock
-      case 7:display.drawLine(60,30,45,51,WHITE); break;  // 7  o'clock
-      case 8:display.drawLine(60,30,37,43,WHITE); break;  // 8  o'clock
-      case 9:display.drawLine(60,30,35,30,WHITE); break;  // 9  o'clock
-      case 10:display.drawLine(60,30,37,17,WHITE); break; // 10 o'clock
-      case 11:display.drawLine(60,30,45,9,WHITE); break;  // 11 o'clock
+        // switch case to display the correct hour hand
+        switch(input)
+        {
+          case 0:display.drawLine(60,30,60,5, WHITE); break;  // 12  o'clock
+          case 1:display.drawLine(60,30,75,9,WHITE); break;   // 1  o'clock
+          case 2:display.drawLine(60,30,83,17,WHITE); break;  // 2  o'clock
+          case 3:display.drawLine(60,30,85,30,WHITE); break;  // 3  o'clock
+          case 4:display.drawLine(60,30,83,43,WHITE); break;  // 4  o'clock
+          case 5:display.drawLine(60,30,75,51,WHITE); break;  // 5  o'clock
+          case 6:display.drawLine(60,30,60,55,WHITE); break;  // 6  o'clock
+          case 7:display.drawLine(60,30,45,51,WHITE); break;  // 7  o'clock
+          case 8:display.drawLine(60,30,37,43,WHITE); break;  // 8  o'clock
+          case 9:display.drawLine(60,30,35,30,WHITE); break;  // 9  o'clock
+          case 10:display.drawLine(60,30,37,17,WHITE); break; // 10 o'clock
+          case 11:display.drawLine(60,30,45,9,WHITE); break;  // 11 o'clock
+        }
+
+        // serial communication
+        Serial << "It's "  << input << " o' clock!" << endl;
+        display.display();
     }
-    // serial communication
-    Serial << "It's "  << input << " o' clock!" << endl;
-    display.display();
-}
 
-// Power Reserve Function
-void powerReserve(int power)
-{
-  
+    // Power Reserve Function
+    void powerReserve(int power)
+    {
+      
 
-}
+    }
 
-void displayOutput(bool paused,int sensorValue,int pos)
-{
-  // everything the display outputs normally
-  display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
-  display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-  display << sensorValue << endl;
-  display << pos << endl;
-  hourlyCheck(paused);
-}
+    void displayOutput(bool paused,int sensorValue,int pos)
+    {
+      // everything the display outputs normally
+      display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
+      display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+      display << getSensorValue() << endl;
+      display << pos << endl;
+      hourlyCheck(paused);
+    }
 
-void serialOutput(int pos, byte buttons)
-{
-  // some serial stuff 
-  Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
-  Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-  Serial << "Servo Pos: " << pos << endl;
-  Serial << "Button pressed: " << buttons << endl;
+    void serialOutput(int pos, byte buttons)
+    {
+      // some serial stuff 
+      Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
+      Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+      Serial << "Servo Pos: " << pos << endl;
+      Serial << "Button pressed: " << buttons << endl;
 
-}
+    }
 
 
 
-void buttonPressCheck(bool& paused)
-{
-  buttons = tm.readButtons();
-  if (buttons == 1)
-  {
-    
+    void buttonPressCheck(bool& paused)
+    {
+      buttons = tm.readButtons();
+      if (buttons == 1)
+      {
+        
 
-    pauseTime(paused);
-  } 
-}
+        pauseTime(paused);
+      } 
+    }
 
-void pauseTime(bool& paused)
-{
-  // effectively pauses the time
-  rtc.setSecond(rtc.getSecond());
-  rtc.setMinute(rtc.getMinute());
-  rtc.setHour(rtc.getHour(h12Flag, pmFlag));
-  rtc.setDate(rtc.getDate());
-  rtc.setMonth(rtc.getMonth(century));
-  rtc.setYear(rtc.getYear());
-  paused = true;
-}
+    void pauseTime(bool& paused)
+    {
+      // effectively pauses the time
+      rtc.setSecond(rtc.getSecond());
+      rtc.setMinute(rtc.getMinute());
+      rtc.setHour(rtc.getHour(h12Flag, pmFlag));
+      rtc.setDate(rtc.getDate());
+      rtc.setMonth(rtc.getMonth(century));
+      rtc.setYear(rtc.getYear());
+      paused = true;
+    }
 
+    void run7SegDisplay()
+    {
+      //display thingy
+      tm.reset();
+      tm.displayIntNum(rtc.getSecond(), false);
+      // LED LED LED
+      tm.setLEDs(getButtons());
+    }
+
+
+    void runServo()
+    {
+
+      //Servo
+      int pos = getSensorValue()/6;
+      myservo.write(pos);
+
+
+    }
+};
 
 //                           /$$                        
 //                          | $$                        
@@ -190,12 +216,11 @@ void pauseTime(bool& paused)
 //                                            | $$      
 //                                            |__/      
 
-
 void setup()
 {
 
-  bool paused = false;
-
+  Clock clock;
+  
   // OLED
   Serial.begin(115200);
   Serial << endl << "Hello OLED World" << endl;
@@ -217,15 +242,13 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  setDateAndTime(); // Only need to do this once ever.
+  clock.setDateAndTime(); // Only need to do this once ever.
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
 }
 
-
-  
 //     /$$                                    
 //    | $$                                    
 //    | $$        /$$$$$$   /$$$$$$   /$$$$$$ 
@@ -238,43 +261,15 @@ void setup()
 //                                  | $$      
 //                                  |__/ (main one)     
 
-
 void loop()
 {
-
-  
-  int power = 0;
-
-
-  
-
-
-  //potentiomometer
-  int sensorValue = analogRead(A0);
-
-
-  //display thingy
-  tm.reset();
-  tm.displayIntNum(rtc.getSecond(), false);
-
   display.clearDisplay();
   display.setCursor(0,0);
-  
-
-  // LED LED LED
-  buttons = tm.readButtons();
-  tm.setLEDs(buttons);
-
-  //Servo
-  int pos = sensorValue/6;
-  
-  myservo.write(pos);
-
-  buttonPressCheck(paused);
 
 
-  displayOutput(paused, sensorValue, pos);
-  serialOutput(pos,buttons);
+
+  clock.displayOutput(paused, sensorValue, pos);
+  clock.serialOutput(pos,buttons);
   
 
   display.display();
