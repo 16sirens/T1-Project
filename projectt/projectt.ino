@@ -37,6 +37,20 @@ bool century = false;
 bool h12Flag;
 bool pmFlag;
 
+
+//           __                               
+//          |  \                              
+//  _______ | $$  ______    _______   _______ 
+// /       \| $$ |      \  /       \ /       \
+//|  $$$$$$$| $$  \$$$$$$\|  $$$$$$$|  $$$$$$$
+//| $$      | $$ /      $$ \$$    \  \$$    \ 
+//| $$_____ | $$|  $$$$$$$ _\$$$$$$\ _\$$$$$$\
+// \$$     \| $$ \$$    $$|       $$|       $$
+//  \$$$$$$$ \$$  \$$$$$$$ \$$$$$$$  \$$$$$$$ 
+                                            
+                                 
+                                            
+
 //
 //  ______                                   __      __                               
 // /      \                                 |  \    |  \                              
@@ -61,19 +75,22 @@ void setDateAndTime()
 }
 
 // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
-void hourlyCheck()
+void hourlyCheck(bool paused)
 {
-  // check if it is the first minute of the hour
-  if (rtc.getMinute()== 0x0)
+    if (paused == false)
   {
-    int twelveHour = rtc.getHour(h12Flag, pmFlag);
-    
-    // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
-    if (twelveHour >= 12)
+    // check if it is the first minute of the hour
+    if (rtc.getMinute()== 0x0)
     {
-      twelveHour -= 12;
-      // call the function to display hour hand
-      displayHour(twelveHour);
+      int twelveHour = rtc.getHour(h12Flag, pmFlag);
+      
+      // if it is past or equal to the 12th hour, minus twelve so the switch statement works for 24hours
+      if (twelveHour >= 12)
+      {
+        twelveHour -= 12;
+        // call the function to display hour hand
+        displayHour(twelveHour);
+      }
     }
   }
 }
@@ -117,17 +134,12 @@ void powerReserve(int power)
 
 void displayOutput(bool paused,int sensorValue,int pos)
 {
-  if (paused == false)
-  {
-    // everything the display outputs normally
-    display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
-    display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-    display << sensorValue << endl;
-    display << pos << endl;
-    hourlyCheck();
-  }
-
-
+  // everything the display outputs normally
+  display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
+  display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+  display << sensorValue << endl;
+  display << pos << endl;
+  hourlyCheck(paused);
 }
 
 void serialOutput(int pos, byte buttons)
@@ -142,19 +154,27 @@ void serialOutput(int pos, byte buttons)
 
 
 
-void buttonPressCheck(bool& pause)
+void buttonPressCheck(bool& paused)
 {
   buttons = tm.readButtons();
   if (buttons == 1)
   {
-    pause = true;
+    
+
+    pauseTime(paused);
   } 
 }
 
-void pauseTime()
+void pauseTime(bool& paused)
 {
-
-
+  // effectively pauses the time
+  rtc.setSecond(rtc.getSecond());
+  rtc.setMinute(rtc.getMinute());
+  rtc.setHour(rtc.getHour(h12Flag, pmFlag));
+  rtc.setDate(rtc.getDate());
+  rtc.setMonth(rtc.getMonth(century));
+  rtc.setYear(rtc.getYear());
+  paused = true;
 }
 
 
@@ -173,6 +193,8 @@ void pauseTime()
 
 void setup()
 {
+
+  bool paused = false;
 
   // OLED
   Serial.begin(115200);
@@ -220,7 +242,7 @@ void setup()
 void loop()
 {
 
-  bool paused = false;
+  
   int power = 0;
 
 
@@ -244,9 +266,7 @@ void loop()
   tm.setLEDs(buttons);
 
   //Servo
-
   int pos = sensorValue/6;
-  
   
   myservo.write(pos);
 
