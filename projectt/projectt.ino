@@ -333,7 +333,7 @@ class Clock
       s1 = seconds /10;
       s2 = seconds % 10;
 
-
+      //i literally tried everything from text,ascii,7seg and intnum display but this works so yay
       tm.displayHex(0,h1);
       tm.displayHex(1,h2);
       tm.displayHex(3,m1);
