@@ -94,7 +94,7 @@ class Clock
       int minute = rtc.getMinute();
       if (buttons == 32)
       {
-        rtc.setMinute(minute += 1);
+        rtc.setMinute(rtc.getMinute() + 1);
       }
       else if (buttons == 64)
       {
@@ -194,6 +194,11 @@ class Clock
     {
       return sensorValue;
     }
+    
+    int getPos()
+    {
+      return pos;
+    }
 
     // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
     void hourlyCheck()
@@ -249,9 +254,19 @@ class Clock
     }
 
     // Power Reserve Function
-    void powerReserve(int power)
+    void powerReserve()
     {
       // code for power reserve complication
+      if (power >= 1)
+      {
+        setPaused(false);
+        setPower((power-1));
+
+      }
+      else if (power = 0)
+      {
+        setPaused(true);
+      }
 
     }
 
@@ -261,7 +276,8 @@ class Clock
       display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
       display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
       display << sensorValue << endl;
-      display << pos << endl;
+      display << pos << " P: " << power << endl;
+
       hourlyCheck();
     }
 
@@ -311,7 +327,7 @@ class Clock
     void runServo()
     {
       //Servo
-      myservo.write(pos);
+      myservo.write(getPos());
     }
 };
 
@@ -364,7 +380,7 @@ void setup()
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
   MainClock.setPaused(false);
-  MainClock.setPower(0);
+  MainClock.setPower(100);
 }
 
 
@@ -387,12 +403,15 @@ void loop()
   display.clearDisplay();
   display.setCursor(0,0);
 
+
   MainClock.ifPaused();
+  
 
   MainClock.setButtons();
   MainClock.setSensorValue();
   MainClock.setPos();
 
+  MainClock.powerReserve();
   MainClock.buttonPressCheck();
 
   MainClock.displayOutput();
@@ -401,9 +420,9 @@ void loop()
   MainClock.runServo();
 
   
-
-
+  Serial << MainClock.getPaused() << endl;
   display.display();
+
   delay(200); // do nothing
 
 }
