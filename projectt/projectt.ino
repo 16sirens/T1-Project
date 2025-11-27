@@ -46,15 +46,39 @@ bool pmFlag;
                                  
 class Clock
 {
-
+  
   bool paused = false;
   int power = 0;
   // TM1638 BUTTON
-  int buttons = tm.readButtons();
-  //potentiomometer
-  int sensorValue = analogRead(A0);
-  
+  int buttons;
+  // potentiomometer
+  int sensorValue;
+  // pos
+  int pos = sensorValue/6;
+
   public:
+
+    Clock();
+    ~Clock();
+
+
+  // if it breaks, remove deconstructor thingy
+
+
+    void setButtons()
+    {
+      buttons = tm.readButtons();
+    }
+
+    void setSensorValue()
+    {
+      sensorValue = analogRead(A0);
+    }
+
+    int getPaused()
+    {
+      return paused;
+    }
 
     int getButtons()
     {
@@ -79,8 +103,9 @@ class Clock
     }
 
     // funtion used to check if it is the first minute of the hour, then calls function to display the hour hand
-    void hourlyCheck(bool paused)
+    void hourlyCheck()
     {
+
         if (paused == false)
       {
         // check if it is the first minute of the hour
@@ -134,21 +159,21 @@ class Clock
     // Power Reserve Function
     void powerReserve(int power)
     {
-      
+      // code for power reserve complication
 
     }
 
-    void displayOutput(bool paused,int sensorValue,int pos)
+    void displayOutput()
     {
       // everything the display outputs normally
       display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
       display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-      display << getSensorValue() << endl;
+      display << sensorValue << endl;
       display << pos << endl;
-      hourlyCheck(paused);
+      hourlyCheck();
     }
 
-    void serialOutput(int pos, byte buttons)
+    void serialOutput()
     {
       // some serial stuff 
       Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
@@ -158,20 +183,16 @@ class Clock
 
     }
 
-
-
-    void buttonPressCheck(bool& paused)
+    void buttonPressCheck()
     {
-      buttons = tm.readButtons();
+      // buttons = tm.readButtons();
       if (buttons == 1)
       {
-        
-
-        pauseTime(paused);
+        pauseTime();
       } 
     }
 
-    void pauseTime(bool& paused)
+    void pauseTime()
     {
       // effectively pauses the time
       rtc.setSecond(rtc.getSecond());
@@ -195,14 +216,17 @@ class Clock
 
     void runServo()
     {
-
       //Servo
-      int pos = getSensorValue()/6;
       myservo.write(pos);
-
-
     }
 };
+
+Clock::Clock() {};
+Clock::~Clock() {};
+
+
+Clock MainClock;
+
 
 //                           /$$                        
 //                          | $$                        
@@ -219,8 +243,6 @@ class Clock
 void setup()
 {
 
-  Clock clock;
-  
   // OLED
   Serial.begin(115200);
   Serial << endl << "Hello OLED World" << endl;
@@ -242,12 +264,15 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  clock.setDateAndTime(); // Only need to do this once ever.
+  //MainClock.setDateAndTime(); // Only need to do this once ever.
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
 }
+
+
+
 
 //     /$$                                    
 //    | $$                                    
@@ -265,12 +290,12 @@ void loop()
 {
   display.clearDisplay();
   display.setCursor(0,0);
+  // display << "hi";
 
 
-
-  clock.displayOutput(paused, sensorValue, pos);
-  clock.serialOutput(pos,buttons);
-  
+  //clock.displayOutput();
+  //clock.serialOutput();
+  //MainClock.run7SegDisplay();
 
   display.display();
   delay(200); // do nothing
