@@ -289,7 +289,7 @@ class Clock
       // everything the display outputs normally
       display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
       display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-      display << "P:" << power << endl;
+      display << "Power:" << power << endl;
 
       // hourlyCheck();
     }
@@ -370,7 +370,7 @@ class Clock
     {
       if (power == 0)
       {
-        display << "Out of power!";
+        display << "NO POWER :(";
         if (sensorValue >= 1020)
         { 
           setPower(50);
@@ -427,7 +427,7 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  MainClock.setDateAndTime(); // Only need to do this once ever.
+  // MainClock.setDateAndTime(); // Only need to do this once ever.
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
@@ -479,6 +479,3 @@ void loop()
   delay(200); // do nothing
 
 }
-
-
-
