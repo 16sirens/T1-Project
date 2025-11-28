@@ -188,12 +188,12 @@ class Clock
       if (paused == true)
       {
         
-        rtc.setSecond(sec);
-        rtc.setMinute(min);
-        rtc.setHour(hour);
-        rtc.setDate(date);
-        rtc.setMonth(month);
-        rtc.setYear(year);
+        rtc.setSecond(rtc.getSecond());
+        rtc.setMinute(rtc.getMinute());
+        rtc.setHour(rtc.getHour(h12Flag, pmFlag));
+        rtc.setDate(rtc.getDate());
+        rtc.setMonth(rtc.getMonth(century));
+        rtc.setYear(rtc.getYear());
       }
     }
 
