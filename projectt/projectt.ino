@@ -277,7 +277,7 @@ class Clock
         setPower((power-1));
 
       }
-      else if (power = 0)
+      else if (power == 0)
       {
         setPaused(true);
       }
