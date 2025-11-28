@@ -228,9 +228,9 @@ class Clock
           if (twelveHour >= 12)
           {
             twelveHour -= 12;
-            // call the function to display hour hand
-            displayHour(twelveHour);
           }
+          // call the function to display hour hand
+          displayHour(twelveHour);
         }
       }
     }
@@ -271,7 +271,7 @@ class Clock
     void powerReserve()
     {
       // code for power reserve complication
-      if (power >= 1)
+      if (power >= 1 && getPaused() == false)
       {
         setPaused(false);
         setPower((power-1));
@@ -289,10 +289,9 @@ class Clock
       // everything the display outputs normally
       display << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << endl;
       display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
-      display << sensorValue << endl;
-      display << pos << " P: " << power << endl;
+      display << "P:" << power << endl;
 
-      hourlyCheck();
+      // hourlyCheck();
     }
 
     void serialOutput()
@@ -300,8 +299,10 @@ class Clock
       // some serial stuff 
       Serial << rtc.getDate() << "/" << rtc.getMonth(century) << "/" << rtc.getYear() << " " ;
       Serial << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
+      Serial << "SensorVal: " << sensorValue << endl;
       Serial << "Servo Pos: " << pos << endl;
       Serial << "Button pressed: " << buttons << endl;
+      Serial << "Paused status: " << getPaused() << endl;
 
     }
 
@@ -311,7 +312,7 @@ class Clock
       if (buttons <= 16 && buttons >= 1)
       {
         setPaused(true);
-        switch(buttons)
+        switch(buttons)       // switch case statement makes it so two buttons pressed at the same time do not break the program
         {
           case 1:setMinute(); break;
           case 2:setHour(); break;
@@ -336,7 +337,8 @@ class Clock
       int hours = rtc.getHour(h12Flag, pmFlag);
       int mins = rtc.getMinute();
       int seconds = rtc.getSecond();
-
+      
+      // disects each digit into a variable
       h1 = hours /10;    // https://stackoverflow.com/questions/4261589/how-do-i-split-an-int-into-its-digits
       h2 = hours % 10;
       m1 = mins / 10;
@@ -344,7 +346,8 @@ class Clock
       s1 = seconds /10;
       s2 = seconds % 10;
 
-      //i literally tried everything from text,ascii,7seg and intnum display but this works so yay
+      // i literally tried everything from text,ascii,7seg and intnum display but this works so yay
+      // displays each variable in the appropriate location
       tm.displayHex(0,h1);
       tm.displayHex(1,h2);
       tm.displayHex(3,m1);
@@ -361,6 +364,23 @@ class Clock
     {
       //Servo
       myservo.write(getPos());
+    }
+
+    void addPower()
+    {
+      if (power == 0)
+      {
+        display << "Out of power!";
+        if (sensorValue >= 1020)
+        { 
+          setPower(50);
+          setPaused(false);
+        }
+      }
+
+
+
+
     }
 };
 
@@ -413,7 +433,7 @@ void setup()
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
   MainClock.setPaused(false);
-  MainClock.setPower(100);
+  MainClock.setPower(50);
 }
 
 
@@ -451,9 +471,9 @@ void loop()
   MainClock.serialOutput();
   MainClock.run7SegDisplay();
   MainClock.runServo();
-
+  MainClock.addPower();
   
-  Serial << MainClock.getPaused() << endl;
+  
   display.display();
 
   delay(200); // do nothing
