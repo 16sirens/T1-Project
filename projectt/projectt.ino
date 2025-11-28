@@ -59,6 +59,15 @@ class Clock
   // pos
   int pos;
 
+
+  int sec = rtc.getSecond();
+  int min = rtc.getMinute();
+  int hour = rtc.getHour(h12Flag, pmFlag);
+  int date = rtc.getDate();
+  int month = rtc.getMonth(century);
+  int year = rtc.getYear();
+
+
   public:
 
     Clock();
@@ -88,7 +97,7 @@ class Clock
 
     void setPos()
     {
-      pos = sensorValue/6;
+      pos = getPower();
     }
     
     void setMinute()
@@ -179,12 +188,12 @@ class Clock
       if (paused == true)
       {
         
-        rtc.setSecond(rtc.getSecond());
-        rtc.setMinute(rtc.getMinute());
-        rtc.setHour(rtc.getHour(h12Flag, pmFlag));
-        rtc.setDate(rtc.getDate());
-        rtc.setMonth(rtc.getMonth(century));
-        rtc.setYear(rtc.getYear());
+        rtc.setSecond(sec);
+        rtc.setMinute(min);
+        rtc.setHour(hour);
+        rtc.setDate(date);
+        rtc.setMonth(month);
+        rtc.setYear(year);
       }
     }
 
@@ -429,7 +438,7 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime 
-  // MainClock.setDateAndTime(); //only needed once per ever
+  MainClock.setDateAndTime(); //only needed once per ever
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
