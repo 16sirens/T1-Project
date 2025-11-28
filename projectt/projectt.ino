@@ -275,11 +275,14 @@ class Clock
       {
         setPaused(false);
         setPower((power-1));
-
+        // brightens 7seg
+        tm.brightness(7);
       }
       else if (power == 0)
       {
         setPaused(true);
+        // dims 7seg
+        tm.brightness(0);
       }
 
     }
@@ -368,17 +371,17 @@ class Clock
 
     void addPower()
     {
+      // checks power level and adds power back
       if (power == 0)
       {
-        display << "NO POWER :(";
+        display << "NO POWER!";
+        
         if (sensorValue >= 1020)
         { 
           setPower(50);
           setPaused(false);
         }
       }
-
-
 
 
     }
@@ -405,7 +408,6 @@ Clock MainClock;
 
 void setup()
 {
-
   // OLED
   Serial.begin(115200);
   Serial << endl << "Hello OLED World" << endl;
@@ -426,8 +428,8 @@ void setup()
   Wire.begin();
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
-  // You should comment this out after you've successfully set the RTC // You should comment this out after you've successfully set the RTC
-  // MainClock.setDateAndTime(); // Only need to do this once ever.
+  // setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime 
+  // MainClock.setDateAndTime(); //only needed once per ever
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
@@ -435,8 +437,6 @@ void setup()
   MainClock.setPaused(false);
   MainClock.setPower(50);
 }
-
-
 
 
 //     /$$                                    
