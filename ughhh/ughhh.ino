@@ -9,6 +9,14 @@
 
 //  All code thought of, written, and debug PROUDLY by me, and only me, with NO use of Generative Artificial Intelligence.
 //  File history, and by extention my thought process and problem solving can be viewed on github:
+//  https://github.com/16sirens/T1-Project/blob/main/ughhh/ughhh.ino
+//  Please note my project randomly decided to delete itself a few times, no idea why!
+//  For refrences please see below:
+//
+//  Line 330: https://www.instructables.com/Fun-With-OLED-Display-and-Arduino/
+//
+//  Line 439: https://stackoverflow.com/questions/4261589/how-do-i-split-an-int-into-its-digits
+//  Also watched this for some direction but it was not much help: https://www.youtube.com/watch?v=m6VfrWVUtEk       
 //
 
 
@@ -111,7 +119,7 @@ class Clock
   // pos
   int pos;
 
-  // time and date stuff
+  // time and date variables
   int sec;
   int min;
   int hour;
@@ -125,7 +133,6 @@ class Clock
     Clock();
     ~Clock();
 
-    // if it breaks, remove deconstructor thingy
     // setters
     void setPaused(bool input)
     {
@@ -165,18 +172,6 @@ class Clock
         rtc.setMinute(*value -= 1);
       }
     }
-
-    
-    void setInitialTime()
-    {
-      sec = rtc.getSecond();
-      min = rtc.getMinute();
-      hour = rtc.getHour(h12Flag, pmFlag);
-      date = rtc.getDate();
-      month = rtc.getMonth(century);
-      year = rtc.getYear();
-    }
-
     
     void setHour(int* value)
     {
@@ -230,7 +225,16 @@ class Clock
       }
     }
 
-    
+    void setInitialTime()
+    {
+      // sets the variables to the current time
+      sec = rtc.getSecond();
+      min = rtc.getMinute();
+      hour = rtc.getHour(h12Flag, pmFlag);
+      date = rtc.getDate();
+      month = rtc.getMonth(century);
+      year = rtc.getYear();
+    }
 
     void setDateAndTime()
     {
@@ -249,7 +253,6 @@ class Clock
       // effectively pauses the time
       if (paused == true)
       {
-        
         rtc.setSecond(rtc.getSecond());
         rtc.setMinute(rtc.getMinute());
         rtc.setHour(rtc.getHour(h12Flag, pmFlag));
@@ -259,6 +262,7 @@ class Clock
       }
       else if (paused == false)
       {
+        // continues to update time variables
         setInitialTime();
       }
     }
@@ -323,6 +327,10 @@ class Clock
         // switch case to display the correct hour hand
         switch(input)
         {
+          // Read this for some direction on how to fulfil the "display graphics" requirement:
+          // https://www.instructables.com/Fun-With-OLED-Display-and-Arduino/
+          // The co-ordinates were all done by me.
+
           case 0:display.drawLine(60,30,60,5, WHITE); break;  // 12  o'clock
           case 1:display.drawLine(60,30,75,9,WHITE); break;   // 1  o'clock
           case 2:display.drawLine(60,30,83,17,WHITE); break;  // 2  o'clock
@@ -386,9 +394,11 @@ class Clock
 
     void buttonPressCheck()
     {
-      // specific if loop makes it so two buttons pressed at the same time do not break the program
+      // Specific IF loop makes it so random buttons pressed do not trigger the function.
       if (buttons <= 80 && buttons >= 1)
       {
+        // Depending on the combination of buttons pressed, the value is incremented or decremented. 
+        // This part also uses POINTERS!!!
         setPaused(true);
         if (buttons == 33 || buttons == 65)
         {
@@ -414,15 +424,14 @@ class Clock
       }
       else if (buttons >= 128)
       {
+        // If the last button is pressed, the clock resumes function.
         setPaused(false);
       }
     }
 
-
-
     void run7SegDisplay()
     {
-      //display thingy
+      // Function used to display the 7seg Display
       tm.reset();
       int h1,h2,m1,m2,s1,s2;
       int hours = rtc.getHour(h12Flag, pmFlag);
@@ -437,7 +446,7 @@ class Clock
       s1 = seconds /10;
       s2 = seconds % 10;
 
-      // i literally tried everything from text,ascii,7seg and intnum display but this works so yay
+      // I literally tried everything from text,ascii,7seg and intnum display but this works so yay
       // displays each variable in the appropriate location
       tm.displayHex(0,h1);
       tm.displayHex(1,h2);
@@ -447,14 +456,13 @@ class Clock
       tm.displayHex(7,s2);
 
       // LED LED LED
-      tm.setLEDs(getButtons());
+      tm.setLEDs(buttons);
     }
-
 
     void runServo()
     {
       //Servo
-      myservo.write(getPos());
+      myservo.write(pos);
     }
 
     void addPower()
@@ -470,8 +478,6 @@ class Clock
           setPaused(false);
         }
       }
-
-
     }
 };
 
@@ -496,6 +502,7 @@ Clock MainClock;
 
 void setup()
 {
+  /////////////////////////////////////// this code was given in CMP 101 ///////////////////////////////////////
   // OLED
   Serial.begin(115200);
   Serial << endl << "Hello OLED World" << endl;
@@ -515,12 +522,13 @@ void setup()
   //RTC
   Wire.begin();
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
-
+  
   // setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime 
   //MainClock.setDateAndTime(); //only needed once per ever
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
+  /////////////////////////////////////// this code was given in CMP 101 ///////////////////////////////////////
 
   MainClock.setInitialTime();
   MainClock.setPaused(false);
@@ -542,13 +550,12 @@ void setup()
 
 void loop()
 {
+  // clears display
   display.clearDisplay();
   display.setCursor(0,0);
 
-
   MainClock.ifPaused();
   
-
   MainClock.setButtons();
   MainClock.setSensorValue();
   MainClock.setPos();
@@ -558,11 +565,12 @@ void loop()
 
   MainClock.displayOutput();
   MainClock.serialOutput();
+
   MainClock.run7SegDisplay();
   MainClock.runServo();
   MainClock.addPower();
   
-  
+  // displays display
   display.display();
 
   delay(500); // do nothing
