@@ -1,4 +1,55 @@
-/////////////////////////////////////// this 
+// 
+//  Author: Sawlayh
+//  First Year Ethical Hacking Student
+//  2503483@uad.ac.uk sawlayhh@gmail.com
+//  CMP 101/ CMP 104 Project
+//  Copyright (c) Sawlayh
+// 
+
+
+//  All code thought of, written, and debug PROUDLY by me, and only me, with NO use of Generative Artificial Intelligence.
+//  File history, and by extention my thought process and problem solving can be viewed on github:
+//
+
+
+/* 
+
+                    #%%%%%%%%%%%%%%%                    
+                %%%%%%%%%%%%%%%%%%%%%%%%                
+            %%%%@@@@@@@@@@%%%%%%%%%%%@@@@@@@            
+          %%%%%@@@@@@@@@@@        %%%@@@@@@@%%          
+        %%%%%%%@@@@@@@@@@@@         @@@@@@@@%%%%        
+      %%%%%%%%%@@@@@@@@@@@@         @@@@@@@@%%%%%%      
+     %%%%%%%%%%@@@@@@@@@@@@         @@@@@@@@%%%%%%%     
+    %%%%%%%%%%%%%@@@@@@@@@@@        @@@@@@@@ %%%%%%%    
+   %%%%%%    %%%%%%@ @@@@@@@        @@@@@@@@   %%%%%%   
+  %%%%%%     @@%%%%%%@@@@@@@        @@@@@@@@    %%%%%%  
+ %%%%%%      @@@%%%%%%%@@@@@        @@@@@@@@     %%%%%% 
+ %%%%%%      @@@@@%%%%%%%@@@@       @@@@@@@@     %%%%%% 
+%%%%%%      @@@@@@@ %%%%%%%@@       @@@@@@@@      %%%%%%
+%%%%%%      @@@@@@@   %%%%%%@       @@@@@@@@      %%%%%%
+%%%%%%      @@@@@@@    @%%%%%%      @@@@@@@@      %%%%%%
+%%%%%%      @@@@@@     @@@%%%%%%    @@@@@@@@      %%%%%%
+%%%%%%     @@@@@@@     @@@@@%%%%%%  @@@@@@@@      %%%%%%
+%%%%%%     @@@@@@@      @@@@@%%%%%%%@@@@@@@@      %%%%%%
+ %%%%%%    @@@@@@       @@@@@@@%%%%%%%@@@@@@     %%%%%% 
+ %%%%%%   @@@@@@@@@@@@@@@@@@@@@  %%%%%%%@@@@     %%%%%% 
+  %%%%%%  @@@@@@@@@@@@@@@@@@@@@    %%%%%%@@@    %%%%%%  
+   %%%%%% @@@@@@@@@@@@@@@@@@@@@@    @%%%%%%@   %%%%%%   
+    %%%%%%%@@@@@         @@@@@@@    @@@%%%%%%%%%%%%%    
+     %%%%%%%@@@@          @@@@@@    @@@@@%%%%%%%%%%     
+      %%%%%%%%@@          @@@@@@@   @@@@@@%%%%%%%%      
+        %%%%%%%%%#        @@@@@@@   @@@%%%%%%%%%        
+        @@%%%%%%%%%%%%    @@@@@@@ %%%%%%%%%%%%          
+        @@@@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%            
+               #%%%%%%%%%%%%%%%%%%%%%%%%#               
+                    %%%%%%%%%%%%%%%%                    
+
+*/
+
+
+
+/////////////////////////////////////// this code was given in CMP 101
 #include <Streaming.h>
 #include <Wire.h>
 #include <TM1638plus.h>       // 7SEG LED&KEY
@@ -33,7 +84,8 @@ bool century = false;
 bool h12Flag;
 bool pmFlag;
 
-/////////////////////////////////////// 
+///////////////////////////////////////  this code was given in CMP 101
+
 
 
 //           __                               
@@ -99,23 +151,21 @@ class Clock
     {
       pos = getPower();
     }
-
-
-    
-    void amendTimeAndDate(int* value, int buttonNumber)
+  
+    void setMinute(int* value)
     {
-      // increments or decrements minute
-      
+      // increments or decrements minutes
 
-      if (buttons == buttonNumber)
+      if (buttons == 33)
       {
         rtc.setMinute(*value += 1);
       }
-      else if (buttons == buttonNumber)
+      else if (buttons == 65)
       {
         rtc.setMinute(*value -= 1);
       }
     }
+
     
     void setInitialTime()
     {
@@ -127,64 +177,60 @@ class Clock
       year = rtc.getYear();
     }
 
-    /*
-    void setHour()
+    
+    void setHour(int* value)
     {
       // increments or decrements hour
-      int hour =rtc.getHour(h12Flag, pmFlag);
-      if (buttons == 33)
+      if (buttons == 34)
       {
-        rtc.setHour(hour += 1);
+        rtc.setHour(*value += 1);
       }
-      else if (buttons == 65)
+      else if (buttons == 66)
       {
-        rtc.setHour(hour -= 1);
+        rtc.setHour(*value -= 1);
       }
     }
      
-    void setDate()
+    void setDate(int* value)
     {
       // increments or decrements date
-      int day = rtc.getDate();
-      if (buttons == 32)
+      if (buttons == 36)
       {
-        rtc.setDate(day += 1);
+        rtc.setDate(*value += 1);
       }
-      else if (buttons == 64)
+      else if (buttons == 68)
       {
-        rtc.setDate(day-= 1);
+        rtc.setDate(*value-= 1);
       }
     }
      
-    void setMonth()
+    void setMonth(int* value)
     {
       // increments or decrements month
-      int month = rtc.getMonth(century);
-      if (buttons == 32)
+      if (buttons == 40)
       {
-        rtc.setMonth(month += 1);
+        rtc.setMonth(*value += 1);
       }
-      else if (buttons == 64)
+      else if (buttons == 72)
       {
-        rtc.setMonth(month -= 1);
+        rtc.setMonth(*value -= 1);
       }
     }
      
-    void setYear()
+    void setYear(int* value)
     {
       // increments or decrements year
-      int year = rtc.getYear();
-      if (buttons == 32)
+      if (buttons == 48)
       {
-        rtc.setYear(year += 1);
+        rtc.setYear(*value += 1);
       }
-      else if (buttons == 64)
+      else if (buttons == 80)
       {
-        rtc.setYear(year -= 1);
+        rtc.setYear(*value -= 1);
       }
     }
 
-    */
+    
 
     void setDateAndTime()
     {
@@ -323,7 +369,7 @@ class Clock
       display << rtc.getHour(h12Flag, pmFlag) << ":" << rtc.getMinute() << ":" << rtc.getSecond() << endl;
       display << "Power:" << power << endl;
 
-      // hourlyCheck();
+      hourlyCheck();
     }
 
     void serialOutput()
@@ -340,18 +386,31 @@ class Clock
 
     void buttonPressCheck()
     {
-      // buttons = tm.readButtons();
-      if (buttons <= 16 && buttons >= 1)
+      // specific if loop makes it so two buttons pressed at the same time do not break the program
+      if (buttons <= 80 && buttons >= 1)
       {
         setPaused(true);
-        switch(buttons)       // switch case statement makes it so two buttons pressed at the same time do not break the program
+        if (buttons == 33 || buttons == 65)
         {
-          case 2:amendTimeAndDate(&min,buttons); break;
-          //case 3:setHour(); break;
-          //case 4:setDate(); break;
-          //case 8:setMonth(); break;
-          //case 16:setYear(); break;
+          setMinute(&min);
         }
+        else if (buttons == 34 || buttons == 66)
+        {
+          setHour(&hour);
+        }
+        else if (buttons == 36 || buttons == 68)
+        {
+          setDate(&date);
+        }
+        else if (buttons == 40 || buttons == 72)
+        {
+          setMonth(&month);
+        }
+        else if (buttons == 48 || buttons == 80)
+        {
+          setYear(&year);
+        }
+     
       }
       else if (buttons >= 128)
       {
@@ -506,6 +565,6 @@ void loop()
   
   display.display();
 
-  delay(200); // do nothing
+  delay(500); // do nothing
 
 }
