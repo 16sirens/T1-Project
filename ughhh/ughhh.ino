@@ -109,8 +109,9 @@ bool pmFlag;
                                  
 class Clock
 {
-  
+  // boolean for pausing the clock
   bool paused;
+  // power for the clock
   int power;
   // TM1638 BUTTON
   int buttons;
@@ -162,66 +163,100 @@ class Clock
     void setMinute(int* value)
     {
       // increments or decrements minutes
-
-      if (buttons == 33)
+      // makes sure minute doesnt overflow
+      if (min <= 58)
       {
-        rtc.setMinute(*value += 1);
+        if (buttons == 33)
+        {
+          rtc.setMinute(*value += 1);
+        }
       }
-      else if (buttons == 65)
+      if (min >= 1)
       {
-        rtc.setMinute(*value -= 1);
+        if (buttons == 65)
+        {
+          rtc.setMinute(*value -= 1);
+        }
       }
     }
     
     void setHour(int* value)
     {
       // increments or decrements hour
-      if (buttons == 34)
+      // makes sure hour doesnt overflow
+      if (hour <= 22)
       {
-        rtc.setHour(*value += 1);
+        if (buttons == 34)
+        {
+          rtc.setHour(*value += 1);
+        }
       }
-      else if (buttons == 66)
+      if (hour >= 1)
       {
-        rtc.setHour(*value -= 1);
+        if (buttons == 66)
+        {
+          rtc.setHour(*value -= 1);
+        }
       }
     }
      
     void setDate(int* value)
     {
       // increments or decrements date
-      if (buttons == 36)
+      // makes sure date doesnt overflow
+      if (date <= 30)
       {
-        rtc.setDate(*value += 1);
+        if (buttons == 36)
+        {
+          rtc.setDate(*value += 1);
+        }
       }
-      else if (buttons == 68)
+      if (date >= 2)
       {
-        rtc.setDate(*value-= 1);
+        if (buttons == 68)
+        {
+          rtc.setDate(*value-= 1);
+        }
       }
     }
      
     void setMonth(int* value)
     {
       // increments or decrements month
-      if (buttons == 40)
+      // makes sure month doesnt overflow
+      if (month <= 11)
       {
-        rtc.setMonth(*value += 1);
+        if (buttons == 40)
+        {
+          rtc.setMonth(*value += 1);
+        }
       }
-      else if (buttons == 72)
+      if (month >= 2)
       {
-        rtc.setMonth(*value -= 1);
+        if (buttons == 72)
+        {
+          rtc.setMonth(*value -= 1);
+        }
       }
     }
      
     void setYear(int* value)
     {
       // increments or decrements year
-      if (buttons == 48)
+      // makes sure year doesnt overflow
+      if (year <= 98)
       {
-        rtc.setYear(*value += 1);
+        if (buttons == 48)
+        {
+          rtc.setYear(*value += 1);
+        }
       }
-      else if (buttons == 80)
+      if (year >= 1)
       {
-        rtc.setYear(*value -= 1);
+        if (buttons == 80)
+        {
+          rtc.setYear(*value -= 1);
+        }
       }
     }
 
@@ -244,7 +279,7 @@ class Clock
       rtc.setMinute(0);
       rtc.setHour(0);
       rtc.setDate(1);
-      rtc.setMonth(1);
+      rtc.setMonth(12);
       rtc.setYear(25);
     }
     
@@ -268,6 +303,11 @@ class Clock
     }
 
     // getters
+    // The getters in this program are not nessecary for functionality however,
+    // they are here for the added modularity.
+    // They have been used in some places as to not hurt their feelings
+    // and give them some purpose.
+
     bool getPaused()
     {
       return paused;
@@ -573,6 +613,6 @@ void loop()
   // displays display
   display.display();
 
-  delay(500); // do nothing
+  delay(200); // do nothing
 
 }
