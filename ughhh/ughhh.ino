@@ -59,13 +59,13 @@ class Clock
   // pos
   int pos;
 
-
-  int sec = rtc.getSecond();
-  int min = rtc.getMinute();
-  int hour = rtc.getHour(h12Flag, pmFlag);
-  int date = rtc.getDate();
-  int month = rtc.getMonth(century);
-  int year = rtc.getYear();
+  // time and date stuff
+  int sec;
+  int min;
+  int hour;
+  int date;
+  int month;
+  int year;
 
 
   public:
@@ -99,30 +99,44 @@ class Clock
     {
       pos = getPower();
     }
+
+
     
-    void setMinute()
+    void amendTimeAndDate(int* value, int buttonNumber)
     {
       // increments or decrements minute
-      int minute = rtc.getMinute();
-      if (buttons == 32)
+      
+
+      if (buttons == buttonNumber)
       {
-        rtc.setMinute(rtc.getMinute() + 1);
+        rtc.setMinute(*value += 1);
       }
-      else if (buttons == 64)
+      else if (buttons == buttonNumber)
       {
-        rtc.setMinute(minute -= 1);
+        rtc.setMinute(*value -= 1);
       }
     }
-     
+    
+    void setInitialTime()
+    {
+      sec = rtc.getSecond();
+      min = rtc.getMinute();
+      hour = rtc.getHour(h12Flag, pmFlag);
+      date = rtc.getDate();
+      month = rtc.getMonth(century);
+      year = rtc.getYear();
+    }
+
+    /*
     void setHour()
     {
       // increments or decrements hour
       int hour =rtc.getHour(h12Flag, pmFlag);
-      if (buttons == 32)
+      if (buttons == 33)
       {
         rtc.setHour(hour += 1);
       }
-      else if (buttons == 64)
+      else if (buttons == 65)
       {
         rtc.setHour(hour -= 1);
       }
@@ -170,6 +184,8 @@ class Clock
       }
     }
 
+    */
+
     void setDateAndTime()
     {
       // set date and time ONCE
@@ -194,6 +210,10 @@ class Clock
         rtc.setDate(rtc.getDate());
         rtc.setMonth(rtc.getMonth(century));
         rtc.setYear(rtc.getYear());
+      }
+      else if (paused == false)
+      {
+        setInitialTime();
       }
     }
 
@@ -326,11 +346,11 @@ class Clock
         setPaused(true);
         switch(buttons)       // switch case statement makes it so two buttons pressed at the same time do not break the program
         {
-          case 1:setMinute(); break;
-          case 2:setHour(); break;
-          case 4:setDate(); break;
-          case 8:setMonth(); break;
-          case 16:setYear(); break;
+          case 2:amendTimeAndDate(&min,buttons); break;
+          //case 3:setHour(); break;
+          //case 4:setDate(); break;
+          //case 8:setMonth(); break;
+          //case 16:setYear(); break;
         }
       }
       else if (buttons >= 128)
@@ -438,11 +458,12 @@ void setup()
   Serial << (F("\nDS3231 Hi Precision Real Time Clock")) << endl;
 
   // setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime setDateAndTime 
-  MainClock.setDateAndTime(); //only needed once per ever
+  //MainClock.setDateAndTime(); //only needed once per ever
 
   //Servo
   myservo.attach(D5, 500, 2400);  // attaches the servo on GIO2 to the servo object
 
+  MainClock.setInitialTime();
   MainClock.setPaused(false);
   MainClock.setPower(50);
 }
