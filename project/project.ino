@@ -13,9 +13,9 @@
 //  Please note my project randomly decided to delete itself a few times, no idea why!
 //  For refrences please see below:
 //
-//  Line 330: https://www.instructables.com/Fun-With-OLED-Display-and-Arduino/
+//  Line 333: https://www.instructables.com/Fun-With-OLED-Display-and-Arduino/
 //
-//  Line 439: https://stackoverflow.com/questions/4261589/how-do-i-split-an-int-into-its-digits
+//  Line 444: https://stackoverflow.com/questions/4261589/how-do-i-split-an-int-into-its-digits
 //  Also watched this for some direction but it was not much help: https://www.youtube.com/watch?v=m6VfrWVUtEk       
 
 
